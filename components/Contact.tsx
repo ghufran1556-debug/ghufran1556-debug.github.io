@@ -67,9 +67,6 @@ const Contact: React.FC = () => {
               </a>
             ))}
           </div>
-          <p className="mt-12 text-slate-500 text-sm">
-            © {new Date().getFullYear()} جميع الحقوق محفوظة لـ غفران صالح
-          </p>
         </div>
       </div>
     </section>
