@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { Mail, Phone, Instagram, Linkedin, Twitter, MessageSquare } from 'lucide-react';
+import { Mail, Phone, Instagram, MessageCircle, LayoutGrid, MessageSquare } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const socialLinks = [
-    { icon: Instagram, href: "https://instagram.com/ghafra", name: "Instagram" },
-    { icon: Linkedin, href: "https://linkedin.com/in/ghafra", name: "Linkedin" },
-    { icon: Twitter, href: "https://twitter.com/ghafra", name: "Twitter" }
+    { icon: Instagram, href: "https://www.instagram.com/lotofphoto56/", name: "Instagram" },
+    { icon: MessageCircle, href: "https://wa.me/966532470165", name: "WhatsApp" },
+    { icon: LayoutGrid, href: "https://www.behance.net/a5b67ea4", name: "Behance" }
   ];
 
   return (
@@ -44,7 +44,7 @@ const Contact: React.FC = () => {
               </div>
               <div>
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">رقم التواصل</p>
-                <a href="tel:+966501887013" className="text-xl font-bold hover:text-purple-400" dir="ltr">+966 50 188 7013</a>
+                <a href="tel:+966532470165" className="text-xl font-bold hover:text-purple-400" dir="ltr">+966 53 247 0165</a>
               </div>
             </div>
           </div>
