@@ -185,26 +185,12 @@ const App: React.FC = () => {
         )}
       </main>
       
-      <footer className="bg-slate-900 py-16 text-center text-slate-500 border-t border-white/5">
+      <footer className="bg-slate-900 py-12 text-center text-slate-500 border-t border-white/5">
         <div className="container mx-auto px-6">
-          <div className="text-2xl font-black text-white mb-4">غفران صالح</div>
-          <p className="max-w-md mx-auto mb-8 text-sm opacity-60">
-            مصممة تجمع بين الفن والتقنية لتقديم حلول بصرية ورقمية مبتكرة.
-          </p>
-          <div className="flex justify-center gap-8 mb-8 text-xs font-bold uppercase tracking-widest">
-             <a href="#home" className="hover:text-purple-400 transition-colors">الرئيسية</a>
-             <a href="#services" className="hover:text-purple-400 transition-colors">الخدمات</a>
-             <a href="#portfolio" className="hover:text-purple-400 transition-colors">الأعمال</a>
-          </div>
-          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <span className="text-xs">© {new Date().getFullYear()} جميع الحقوق محفوظة.</span>
-            <div className="flex items-center gap-4">
-              {session ? (
-                <a href="#dashboard" className="text-xs bg-purple-600/20 text-purple-400 px-4 py-2 rounded-full hover:bg-purple-600 hover:text-white transition-all">لوحة التحكم</a>
-              ) : (
-                <a href="#ghufran" className="text-[10px] opacity-20 hover:opacity-100 transition-opacity">دخول الإدارة</a>
-              )}
-            </div>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4">
+            <span className="text-xs font-bold opacity-60">
+              © {new Date().getFullYear()} جميع الحقوق محفوظة.
+            </span>
           </div>
         </div>
       </footer>
