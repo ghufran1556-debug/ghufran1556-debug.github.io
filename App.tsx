@@ -1,4 +1,5 @@
 
+    
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -189,7 +190,7 @@ const App: React.FC = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-center items-center gap-4">
             <span className="text-xs font-bold opacity-60">
-              © {new Date().getFullYear()} جميع الحقوق محفوظة.
+              © 2026 جميع الحقوق محفوظة لـ غفران صالح
             </span>
           </div>
         </div>
