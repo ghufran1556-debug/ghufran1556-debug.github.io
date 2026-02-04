@@ -3,7 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { 
   Plus, Layout, FolderKanban, Trash2, Upload, 
-  Loader2, FileText, CheckCircle, FileUp, AlertCircle
+  Loader2, FileText, CheckCircle, FileUp, AlertCircle, Image as ImageIcon, Video as VideoIcon,
+  // Fix: Added PlayCircle to imports from lucide-react
+  PlayCircle
 } from 'lucide-react';
 import { Category, PortfolioItem } from '../../types';
 
@@ -18,7 +20,14 @@ const Dashboard: React.FC<{ onUpdate: () => void }> = ({ onUpdate }) => {
 
   // Form States
   const [catForm, setCatForm] = useState({ name: '', desc: '', file: null as File | null, preview: null as string | null });
-  const [projForm, setProjForm] = useState({ title: '', desc: '', catId: '', file: null as File | null, preview: null as string | null });
+  const [projForm, setProjForm] = useState({ 
+    title: '', 
+    desc: '', 
+    catId: '', 
+    mediaType: 'image' as 'image' | 'video',
+    file: null as File | null, 
+    preview: null as string | null 
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -31,10 +40,20 @@ const Dashboard: React.FC<{ onUpdate: () => void }> = ({ onUpdate }) => {
 
   useEffect(() => { loadData(); }, []);
 
+  // وظيفة لتنظيف اسم الملف من الحروف غير اللاتينية والمسافات
+  const sanitizeFileName = (fileName: string) => {
+    const extension = fileName.split('.').pop();
+    // نستخدم التوقيت الحالي مع اسم عشوائي بسيط لتجنب التكرار والمشاكل
+    return `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
+  };
+
   const uploadToStorage = async (file: File, folder: string) => {
-    const path = `${folder}/${Date.now()}-${file.name}`;
+    const cleanName = sanitizeFileName(file.name);
+    const path = `${folder}/${cleanName}`;
+    
     const { error } = await supabase.storage.from('portfolio').upload(path, file);
     if (error) throw error;
+    
     const { data } = supabase.storage.from('portfolio').getPublicUrl(path);
     return data.publicUrl;
   };
@@ -62,20 +81,21 @@ const Dashboard: React.FC<{ onUpdate: () => void }> = ({ onUpdate }) => {
 
   const handleSubmitProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!projForm.file) { setErrorMsg("يرجى اختيار صورة"); return; }
+    if (!projForm.file) { setErrorMsg("يرجى اختيار ملف"); return; }
     setLoading(true); setErrorMsg(null);
     try {
       const url = await uploadToStorage(projForm.file, 'projects');
       const data = { 
         title: projForm.title, 
-        description: projForm.desc, // إضافة الوصف
+        description: projForm.desc,
         image_url: url, 
-        category_id: projForm.catId 
+        category_id: projForm.catId,
+        media_type: projForm.mediaType 
       };
       const { error } = await supabase.from('portfolio_items').insert([data]);
       if (error) throw error;
       setSuccessMsg('تمت الإضافة بنجاح');
-      setProjForm({ title: '', desc: '', catId: '', file: null, preview: null });
+      setProjForm({ title: '', desc: '', catId: '', mediaType: 'image', file: null, preview: null });
       loadData(); onUpdate();
     } catch (err: any) { setErrorMsg(err.message); } finally { setLoading(false); }
   };
@@ -109,17 +129,17 @@ const Dashboard: React.FC<{ onUpdate: () => void }> = ({ onUpdate }) => {
 
               {activeTab === 'categories' && (
                 <form onSubmit={handleSubmitCategory} className="space-y-4">
-                  <input type="text" placeholder="اسم الفئة" value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} required className="w-full p-4 bg-slate-50 rounded-2xl border" />
-                  <textarea placeholder="الوصف" value={catForm.desc} onChange={e => setCatForm({...catForm, desc: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border min-h-[100px]" />
-                  <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer border-2 border-dashed p-10 rounded-2xl text-center bg-slate-50">
+                  <input type="text" placeholder="اسم الفئة" value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} required className="w-full p-4 bg-slate-50 rounded-2xl border outline-none focus:border-purple-600" />
+                  <textarea placeholder="الوصف" value={catForm.desc} onChange={e => setCatForm({...catForm, desc: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border min-h-[100px] outline-none focus:border-purple-600" />
+                  <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer border-2 border-dashed p-10 rounded-2xl text-center bg-slate-50 hover:bg-slate-100 transition-colors">
                     {catForm.preview ? <img src={catForm.preview} className="max-h-32 mx-auto rounded-lg" /> : <Upload className="mx-auto text-slate-300" />}
                     <span className="text-xs font-bold text-slate-400 block mt-2">صورة الغلاف</span>
                   </div>
-                  <input type="file" ref={fileInputRef} hidden onChange={e => {
+                  <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={e => {
                     const f = e.target.files?.[0];
                     if (f) setCatForm({...catForm, file: f, preview: URL.createObjectURL(f)});
                   }} />
-                  <button type="submit" disabled={loading} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black">
+                  <button type="submit" disabled={loading} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-purple-600 transition-all">
                     {loading ? <Loader2 className="animate-spin mx-auto" /> : 'إضافة الفئة'}
                   </button>
                 </form>
@@ -127,32 +147,111 @@ const Dashboard: React.FC<{ onUpdate: () => void }> = ({ onUpdate }) => {
 
               {activeTab === 'projects' && (
                 <form onSubmit={handleSubmitProject} className="space-y-4">
-                  <select value={projForm.catId} onChange={e => setProjForm({...projForm, catId: e.target.value})} required className="w-full p-4 bg-slate-50 rounded-2xl border">
+                  <div className="flex bg-slate-100 p-1 rounded-xl mb-4">
+                    <button 
+                      type="button"
+                      onClick={() => setProjForm({...projForm, mediaType: 'image', file: null, preview: null})}
+                      className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${projForm.mediaType === 'image' ? 'bg-white shadow text-purple-600' : 'text-slate-500'}`}
+                    >
+                      <ImageIcon size={18} /> صورة
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setProjForm({...projForm, mediaType: 'video', file: null, preview: null})}
+                      className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${projForm.mediaType === 'video' ? 'bg-white shadow text-purple-600' : 'text-slate-500'}`}
+                    >
+                      <VideoIcon size={18} /> فيديو
+                    </button>
+                  </div>
+
+                  <select value={projForm.catId} onChange={e => setProjForm({...projForm, catId: e.target.value})} required className="w-full p-4 bg-slate-50 rounded-2xl border outline-none focus:border-purple-600">
                     <option value="">اختر الفئة</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
-                  <input type="text" placeholder="عنوان العمل" value={projForm.title} onChange={e => setProjForm({...projForm, title: e.target.value})} required className="w-full p-4 bg-slate-50 rounded-2xl border" />
-                  {/* إعادة حقل وصف العمل */}
-                  <textarea placeholder="نبذة عن العمل (تظهر في الصفحة المؤقتة)" value={projForm.desc} onChange={e => setProjForm({...projForm, desc: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border min-h-[100px]" />
-                  <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer border-2 border-dashed p-8 rounded-2xl text-center bg-slate-50">
-                    {projForm.preview ? <img src={projForm.preview} className="max-h-24 mx-auto" /> : <FileUp className="mx-auto text-slate-300" />}
-                    <span className="text-xs font-bold text-slate-400 block mt-2">صورة العمل</span>
+                  <input type="text" placeholder="عنوان العمل" value={projForm.title} onChange={e => setProjForm({...projForm, title: e.target.value})} required className="w-full p-4 bg-slate-50 rounded-2xl border outline-none focus:border-purple-600" />
+                  <textarea placeholder="نبذة عن العمل" value={projForm.desc} onChange={e => setProjForm({...projForm, desc: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border min-h-[100px] outline-none focus:border-purple-600" />
+                  
+                  <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer border-2 border-dashed p-8 rounded-2xl text-center bg-slate-50 hover:bg-slate-100 transition-colors">
+                    {projForm.preview ? (
+                      projForm.mediaType === 'video' ? (
+                        <div className="relative">
+                          <video src={projForm.preview} className="max-h-32 mx-auto rounded-lg" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                             <PlayCircle className="text-white w-8 h-8" />
+                          </div>
+                        </div>
+                      ) : (
+                        <img src={projForm.preview} className="max-h-32 mx-auto rounded-lg" />
+                      )
+                    ) : (
+                      <>
+                        <FileUp className="mx-auto text-slate-300" />
+                        <span className="text-xs font-bold text-slate-400 block mt-2">
+                          اضغطي لرفع {projForm.mediaType === 'video' ? 'فيديو (MP4)' : 'صورة'}
+                        </span>
+                      </>
+                    )}
                   </div>
-                  <input type="file" ref={fileInputRef} hidden onChange={e => {
-                    const f = e.target.files?.[0];
-                    if (f) setProjForm({...projForm, file: f, preview: URL.createObjectURL(f)});
-                  }} />
-                  <button type="submit" disabled={loading} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black">
+                  
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    hidden 
+                    accept={projForm.mediaType === 'video' ? 'video/mp4,video/x-m4v,video/*' : 'image/*'} 
+                    onChange={e => {
+                      const f = e.target.files?.[0];
+                      if (f) setProjForm({...projForm, file: f, preview: URL.createObjectURL(f)});
+                    }} 
+                  />
+                  
+                  <button type="submit" disabled={loading} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-purple-600 transition-all">
                     {loading ? <Loader2 className="animate-spin mx-auto" /> : 'إضافة العمل'}
                   </button>
                 </form>
+              )}
+
+              {activeTab === 'cv' && (
+                <div className="space-y-6">
+                  <p className="text-sm text-slate-500 font-bold bg-purple-50 p-4 rounded-2xl border border-purple-100">
+                    ملاحظة: لضمان عمل زر "السيرة الذاتية" في الموقع، يجب أن يكون اسم الملف المرفوع <span className="text-purple-600" dir="ltr">ghafran-cv.pdf</span>
+                  </p>
+                  <div 
+                    onClick={() => fileInputRef.current?.click()} 
+                    className="cursor-pointer border-2 border-dashed p-12 rounded-[2rem] text-center bg-slate-50 hover:bg-slate-100 transition-all group"
+                  >
+                    <FileUp className="mx-auto text-slate-300 group-hover:text-purple-500 group-hover:scale-110 transition-all mb-4" size={40} />
+                    <span className="text-slate-600 font-black block">اسحبي السيرة الذاتية هنا</span>
+                    <span className="text-xs text-slate-400 mt-2 block">صيغة PDF فقط</span>
+                  </div>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    hidden 
+                    accept=".pdf" 
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      setLoading(true); setErrorMsg(null);
+                      try {
+                        // رفع السيرة الذاتية بمسار ثابت ليتمكن الموقع من جلبها
+                        const path = 'cv/ghafran-cv.pdf';
+                        // نستخدم upsert: true لتحديث الملف القديم بنفس الاسم
+                        const { error } = await supabase.storage.from('portfolio').upload(path, f, { upsert: true });
+                        if (error) throw error;
+                        setSuccessMsg('تم تحديث السيرة الذاتية بنجاح');
+                        onUpdate();
+                      } catch (err: any) { setErrorMsg(err.message); } finally { setLoading(false); }
+                    }} 
+                  />
+                  {loading && <div className="flex justify-center"><Loader2 className="animate-spin text-purple-600" /></div>}
+                </div>
               )}
             </div>
           </div>
 
           <div className="lg:col-span-2 space-y-4">
             {activeTab === 'categories' && categories.map(cat => (
-              <div key={cat.id} className="bg-white p-6 rounded-[2rem] flex items-center justify-between border shadow-sm">
+              <div key={cat.id} className="bg-white p-6 rounded-[2rem] flex items-center justify-between border shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
                   <img src={cat.cover_image} className="w-16 h-16 rounded-2xl object-cover" />
                   <h4 className="font-black text-slate-900">{cat.name}</h4>
@@ -161,17 +260,36 @@ const Dashboard: React.FC<{ onUpdate: () => void }> = ({ onUpdate }) => {
               </div>
             ))}
             {activeTab === 'projects' && projects.map(p => (
-              <div key={p.id} className="bg-white p-6 rounded-[2rem] flex items-center justify-between border shadow-sm">
-                <div className="flex items-center gap-4">
-                  <img src={p.image_url} className="w-16 h-16 rounded-2xl object-cover" />
+              <div key={p.id} className="bg-white p-6 rounded-[2rem] flex items-center justify-between border shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-4 text-right">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden flex items-center justify-center border">
+                    {p.media_type === 'video' ? (
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <VideoIcon className="text-purple-600" />
+                        <div className="absolute bottom-1 right-1 bg-purple-600 w-2 h-2 rounded-full animate-pulse"></div>
+                      </div>
+                    ) : (
+                      <img src={p.image_url} className="w-full h-full object-cover" />
+                    )}
+                  </div>
                   <div>
                     <h4 className="font-black text-slate-900">{p.title}</h4>
-                    <span className="text-xs text-slate-400">{categories.find(c => c.id === p.category_id)?.name}</span>
+                    <span className="text-xs text-slate-400 flex items-center gap-1">
+                      {p.media_type === 'video' ? <VideoIcon size={12}/> : <ImageIcon size={12}/>}
+                      {categories.find(c => c.id === p.category_id)?.name}
+                    </span>
                   </div>
                 </div>
                 <button onClick={() => deleteItem('portfolio_items', p.id)} className="p-3 text-red-500 hover:bg-red-50 rounded-full transition-all"><Trash2 size={20}/></button>
               </div>
             ))}
+            {activeTab === 'cv' && (
+              <div className="bg-white p-12 rounded-[3rem] border shadow-sm text-center">
+                <FileText size={64} className="mx-auto text-slate-200 mb-6" />
+                <h4 className="text-xl font-black text-slate-800 mb-2">إدارة الملفات</h4>
+                <p className="text-slate-500">استخدمي النموذج الجانبي لتحديث ملف السيرة الذاتية الخاص بكِ.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
