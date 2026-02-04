@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ZoomIn, PlayCircle, X, ArrowRightCircle, MoveLeft } from 'lucide-react';
+import { ZoomIn, PlayCircle, X, ArrowRightCircle, MoveLeft, ArrowLeft } from 'lucide-react';
 import { Category, PortfolioItem } from '../types';
 
 interface PortfolioProps {
@@ -12,7 +12,7 @@ interface PortfolioProps {
 const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate }) => {
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
 
-  // منطق اختيار 3 أعمال منوعة بدقة من الأقسام الرئيسية
+  // اختيار 6 أعمال منوعة لتعبئة السطر بالكامل في الصفحة الرئيسية
   const latestProjects = useMemo(() => {
     if (projects.length === 0) return [];
     
@@ -26,9 +26,8 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
     const result: PortfolioItem[] = [];
     const catIds = Object.keys(groups);
     
-    // سحب عمل واحد من كل فئة حتى نصل لـ 3 أعمال فقط
     let i = 0;
-    while (result.length < 3 && result.length < projects.length) {
+    while (result.length < 6 && result.length < projects.length) {
       const cid = catIds[i % catIds.length];
       if (groups[cid] && groups[cid].length > 0) {
         const item = groups[cid].shift();
@@ -63,27 +62,41 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6">معرض الأعمال</h2>
           <div className="w-20 h-2 bg-purple-600 rounded-full mb-6 mx-auto"></div>
-          <p className="text-slate-600 text-lg">
-            نظرة مباشرة على أحدث المشاريع والإبداعات الفنية والحلول التقنية.
+          <p className="text-slate-600 text-lg mb-10">
+            نظرة مباشرة على أحدث المشاريع والإبداعات الفنية والحلول التقنية من كافة الأقسام.
           </p>
+
+          {/* إعادة الجزء المحذوف: أزرار الأقسام الرئيسية */}
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => onNavigate(cat.slug)}
+                className="px-6 py-3 bg-white border border-slate-200 rounded-2xl font-bold text-slate-700 hover:border-purple-600 hover:text-purple-600 hover:shadow-xl transition-all flex items-center gap-2 group shadow-sm"
+              >
+                {cat.name}
+                <ArrowLeft size={16} className="opacity-0 group-hover:opacity-100 transition-opacity -translate-x-1" />
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* شبكة الأعمال - تظهر سطر واحد فقط (3 أعمال) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* شبكة الأعمال - تظهر 6 في الصف (6 أعمدة) */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {latestProjects.map((project) => (
             <div 
               key={project.id} 
               onClick={() => setSelectedProject(project)}
-              className="group cursor-pointer bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500"
+              className="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500"
             >
               <div className="aspect-[4/3] overflow-hidden relative bg-slate-100">
                 {project.media_type === 'video' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-white p-4">
-                    <PlayCircle className="w-12 h-12 text-purple-500 mb-2 group-hover:scale-110 transition-transform duration-500" />
-                    <span className="text-xs font-bold opacity-50 uppercase tracking-widest">فيديو</span>
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-white p-2 text-center">
+                    <PlayCircle className="w-8 h-8 text-purple-500 mb-1 group-hover:scale-110 transition-transform duration-500" />
+                    <span className="text-[10px] font-bold opacity-50 uppercase">فيديو</span>
                   </div>
                 ) : (
                   <img 
@@ -93,26 +106,25 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
                   />
                 )}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-purple-600 shadow-xl transform scale-50 group-hover:scale-100 transition-transform">
-                    <ZoomIn size={24} />
+                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-purple-600 shadow-xl transform scale-50 group-hover:scale-100 transition-transform">
+                    <ZoomIn size={16} />
                   </div>
                 </div>
               </div>
-              <div className="p-8">
-                <h3 className="text-xl font-black text-slate-900">{project.title}</h3>
+              <div className="p-3">
+                <h3 className="text-xs font-bold text-slate-900 truncate">{project.title}</h3>
               </div>
             </div>
           ))}
         </div>
 
-        {/* زر متابعة الأعمال */}
         <div className="mt-16 text-center">
           <button 
             onClick={() => {
               if (categories.length > 0) onNavigate(categories[0].slug);
               else window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="group inline-flex items-center gap-4 bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black text-xl hover:bg-purple-600 hover:shadow-2xl hover:shadow-purple-100 transition-all transform hover:-translate-y-1 active:scale-95"
+            className="group inline-flex items-center gap-4 bg-slate-900 text-white px-10 py-4 rounded-full font-black text-lg hover:bg-purple-600 hover:shadow-2xl hover:shadow-purple-100 transition-all transform hover:-translate-y-1 active:scale-95"
           >
             لمتابعة الأعمال
             <MoveLeft className="group-hover:-translate-x-2 transition-transform" />
@@ -153,10 +165,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
                 </p>
 
                 <div className="flex justify-center sm:justify-end pb-12">
-                  <button 
-                    onClick={() => setSelectedProject(null)}
-                    className="flex items-center gap-3 bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black text-xl hover:bg-purple-600 hover:shadow-2xl hover:shadow-purple-200 transition-all transform hover:-translate-y-1 active:scale-95"
-                  >
+                  <button onClick={() => setSelectedProject(null)} className="flex items-center gap-3 bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black text-xl hover:bg-purple-600 hover:shadow-2xl hover:shadow-purple-200 transition-all transform hover:-translate-y-1 active:scale-95">
                     إغلاق والعودة للمعرض
                     <ArrowRightCircle size={24} />
                   </button>
