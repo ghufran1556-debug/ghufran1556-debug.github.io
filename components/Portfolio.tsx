@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ZoomIn, PlayCircle, X, ArrowRightCircle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ZoomIn, PlayCircle, X, ArrowRightCircle, MoveLeft } from 'lucide-react';
 import { Category, PortfolioItem } from '../types';
 
 interface PortfolioProps {
@@ -12,7 +12,33 @@ interface PortfolioProps {
 const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate }) => {
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
 
-  const latestProjects = projects.slice(0, 12);
+  // منطق اختيار 3 أعمال منوعة بدقة من الأقسام الرئيسية
+  const latestProjects = useMemo(() => {
+    if (projects.length === 0) return [];
+    
+    const groups: Record<string, PortfolioItem[]> = {};
+    projects.forEach(p => {
+      const catId = p.category_id;
+      if (!groups[catId]) groups[catId] = [];
+      groups[catId].push(p);
+    });
+
+    const result: PortfolioItem[] = [];
+    const catIds = Object.keys(groups);
+    
+    // سحب عمل واحد من كل فئة حتى نصل لـ 3 أعمال فقط
+    let i = 0;
+    while (result.length < 3 && result.length < projects.length) {
+      const cid = catIds[i % catIds.length];
+      if (groups[cid] && groups[cid].length > 0) {
+        const item = groups[cid].shift();
+        if (item) result.push(item);
+      }
+      i++;
+      if (i > projects.length * 2) break; 
+    }
+    return result;
+  }, [projects]);
 
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
@@ -37,27 +63,15 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6">معرض الأعمال</h2>
           <div className="w-20 h-2 bg-purple-600 rounded-full mb-6 mx-auto"></div>
-          <p className="text-slate-600 text-lg mb-10">
-            نظرة مباشرة على أحدث المشاريع والإبداعات الفنية والحلول التقنية من كافة الأقسام.
+          <p className="text-slate-600 text-lg">
+            نظرة مباشرة على أحدث المشاريع والإبداعات الفنية والحلول التقنية.
           </p>
-
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => onNavigate(cat.slug)}
-                className="px-6 py-3 bg-white border border-slate-200 rounded-2xl font-bold text-slate-700 hover:border-purple-600 hover:text-purple-600 hover:shadow-xl transition-all flex items-center gap-2 group shadow-sm"
-              >
-                {cat.name}
-                <ArrowLeft size={16} className="opacity-0 group-hover:opacity-100 transition-opacity -translate-x-1" />
-              </button>
-            ))}
-          </div>
         </div>
 
+        {/* شبكة الأعمال - تظهر سطر واحد فقط (3 أعمال) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {latestProjects.map((project) => (
             <div 
@@ -85,13 +99,24 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
                 </div>
               </div>
               <div className="p-8">
-                <span className="text-xs font-black text-purple-600 uppercase tracking-widest mb-2 block">
-                  {project.category?.name}
-                </span>
                 <h3 className="text-xl font-black text-slate-900">{project.title}</h3>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* زر متابعة الأعمال */}
+        <div className="mt-16 text-center">
+          <button 
+            onClick={() => {
+              if (categories.length > 0) onNavigate(categories[0].slug);
+              else window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="group inline-flex items-center gap-4 bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black text-xl hover:bg-purple-600 hover:shadow-2xl hover:shadow-purple-100 transition-all transform hover:-translate-y-1 active:scale-95"
+          >
+            لمتابعة الأعمال
+            <MoveLeft className="group-hover:-translate-x-2 transition-transform" />
+          </button>
         </div>
       </div>
 
@@ -122,7 +147,6 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
                 <h3 className="text-3xl font-black text-slate-900 mb-6">نبذة عن العمل</h3>
                 <div className="w-16 h-1.5 bg-purple-600 rounded-full mb-8"></div>
                 <p className="text-slate-600 text-xl leading-relaxed whitespace-pre-line mb-16">
-                  {/* فصل الفئة الفرعية عن الوصف الفعلي */}
                   {(selectedProject.description || "").split('|||').length > 1 
                     ? (selectedProject.description || "").split('|||')[1] 
                     : (selectedProject.description || "لا يوجد وصف متاح لهذا العمل حالياً.")}
