@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { DESIGN_SERVICES, TECH_SERVICES, getIcon } from '../constants';
 
@@ -10,21 +11,21 @@ const Services: React.FC = () => {
           <div className="w-24 h-2 bg-purple-600 mx-auto rounded-full"></div>
         </div>
 
-        {/* Visual Production Services - Updated to 4 columns in one line */}
+        {/* Visual Production Services - Updated to 5 columns on desktop */}
         <div className="mb-20">
-          <h3 className="text-2xl font-bold text-purple-800 mb-8 border-r-4 border-purple-600 pr-4">
+          <h3 className="text-2xl font-bold text-purple-800 mb-8 border-r-4 border-purple-600 pr-4 text-right">
             خدمات التصميم والإنتاج البصري
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-6">
             {DESIGN_SERVICES.map((service, idx) => (
               <div 
                 key={idx} 
-                className="group p-6 lg:p-8 bg-slate-50 rounded-3xl border border-transparent hover:border-purple-200 hover:bg-white hover:shadow-2xl hover:shadow-purple-100 transition-all duration-300 transform hover:-translate-y-2 flex flex-col items-center text-center"
+                className="group p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-purple-200 hover:bg-white hover:shadow-2xl hover:shadow-purple-100 transition-all duration-300 transform hover:-translate-y-2 flex flex-col items-center text-center"
               >
                 <div className="mb-6 inline-block p-4 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
                   {getIcon(service.icon)}
                 </div>
-                <h4 className="text-lg lg:text-xl font-black text-slate-800 whitespace-pre-line leading-snug">
+                <h4 className="text-lg font-black text-slate-800 whitespace-pre-line leading-snug">
                   {service.title}
                 </h4>
                 {service.description && (
@@ -39,7 +40,7 @@ const Services: React.FC = () => {
 
         {/* Technical Solutions Services */}
         <div>
-          <h3 className="text-2xl font-bold text-purple-800 mb-8 border-r-4 border-purple-600 pr-4">
+          <h3 className="text-2xl font-bold text-purple-800 mb-8 border-r-4 border-purple-600 pr-4 text-right">
             الحلول التقنية والرقمية
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
