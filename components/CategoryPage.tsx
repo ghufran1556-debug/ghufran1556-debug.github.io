@@ -20,7 +20,6 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
     return categories.find(c => c.slug === slug || c.slug === categorySlug);
   }, [categories, slug, categorySlug]);
 
-  // منطق تجميع الأعمال حسب الفئات الفرعية
   const groupedItems = useMemo(() => {
     if (!info) return {};
     
@@ -64,39 +63,40 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
         </div>
 
         {subCategories.length > 0 ? (
-          <div className="space-y-24">
+          <div className="space-y-20">
             {subCategories.sort((a, b) => a === 'أعمال أخرى' ? 1 : b === 'أعمال أخرى' ? -1 : 0).map((subName) => (
               <div key={subName} className="relative">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-100">
-                    <Layers size={24} />
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-100">
+                    <Layers size={20} />
                   </div>
-                  <h2 className="text-3xl font-black text-slate-800">{subName}</h2>
+                  <h2 className="text-2xl font-black text-slate-800">{subName}</h2>
                   <div className="flex-1 h-px bg-slate-100"></div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* شبكة الأعمال - تظهر 6 في الصف */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {groupedItems[subName].map((item) => (
                     <div 
                       key={item.id} 
                       onClick={() => setSelectedProject(item)}
-                      className="group cursor-pointer bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 hover:shadow-2xl transition-all duration-500"
+                      className="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-xl transition-all duration-500"
                     >
                       <div className="aspect-[4/3] overflow-hidden relative bg-slate-100">
                         {item.media_type === 'video' ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-white p-4 text-center">
-                            <PlayCircle className="w-16 h-16 text-purple-500 mb-4 group-hover:scale-110 transition-transform" />
-                            <span className="font-bold opacity-70">فيديو متاح</span>
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-white p-2 text-center">
+                            <PlayCircle className="w-10 h-10 text-purple-500 mb-2 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-bold opacity-70">فيديو</span>
                           </div>
                         ) : (
                           <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
                         )}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <ZoomIn className="text-white w-10 h-10" />
+                          <ZoomIn className="text-white w-8 h-8" />
                         </div>
                       </div>
-                      <div className="p-8">
-                        <h3 className="text-xl font-black text-slate-900">{item.title}</h3>
+                      <div className="p-3">
+                        <h3 className="text-xs font-bold text-slate-900 truncate">{item.title}</h3>
                       </div>
                     </div>
                   ))}
@@ -138,7 +138,6 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
                 <h3 className="text-3xl font-black text-slate-900 mb-6">نبذة عن العمل</h3>
                 <div className="w-16 h-1.5 bg-purple-600 rounded-full mb-8"></div>
                 <p className="text-slate-600 text-xl leading-relaxed whitespace-pre-line mb-16">
-                  {/* استخراج الوصف الفعلي فقط دون الفئة الفرعية */}
                   {(selectedProject.description || "").split('|||').length > 1 
                     ? (selectedProject.description || "").split('|||')[1] 
                     : (selectedProject.description || "لا يوجد وصف متاح لهذا العمل حالياً.")}
