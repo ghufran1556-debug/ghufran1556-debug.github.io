@@ -10,7 +10,6 @@ import Login from './components/Dashboard/Login';
 import Dashboard from './components/Dashboard/Dashboard';
 import { supabase } from './lib/supabase';
 import { Category, PortfolioItem } from './types';
-import { Lock } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>('home');
@@ -111,15 +110,6 @@ const App: React.FC = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <span className="text-xs font-bold opacity-60">© 2026 جميع الحقوق محفوظة لـ غفران صالح</span>
-            
-            {/* مدخل سري للوحة التحكم */}
-            <button 
-              onClick={() => navigateTo('ghufran')}
-              className="opacity-10 hover:opacity-100 transition-opacity p-2 text-white"
-              title="إدارة الموقع"
-            >
-              <Lock size={14} />
-            </button>
           </div>
         </div>
       </footer>
