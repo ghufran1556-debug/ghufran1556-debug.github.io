@@ -5,7 +5,7 @@ import { Mail, Phone, Instagram, MessageCircle, LayoutGrid, MessageSquare } from
 const Contact: React.FC = () => {
   const socialLinks = [
     { icon: Instagram, href: "https://www.instagram.com/lotofphoto56/", name: "Instagram" },
-    { icon: MessageCircle, href: "https://wa.me/966532470165", name: "WhatsApp" },
+    { icon: MessageCircle, href: "https://wa.me/966501887013", name: "WhatsApp" },
     { icon: LayoutGrid, href: "https://www.behance.net/a5b67ea4", name: "Behance" }
   ];
 
@@ -18,7 +18,7 @@ const Contact: React.FC = () => {
           <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight text-glow text-right">
             تواصل معي!
           </h2>
-          <div className="text-slate-400 text-lg mb-12 max-w-lg space-y-4">
+          <div className="text-slate-400 text-lg mb-12 max-w-lg space-y-4 text-right">
             <p>
               يسعدني استقبال أي تواصل مهني أو استفسار يتعلق بالتصميم، التصوير، أو المشاريع الإبداعية والرقمية.
             </p>
@@ -28,23 +28,23 @@ const Contact: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="flex items-center gap-6 group">
-              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 transition-all">
-                <Mail className="text-purple-500 group-hover:text-white" />
-              </div>
-              <div>
+            <div className="flex items-center gap-6 group justify-end">
+              <div className="text-right">
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">البريد الإلكتروني</p>
                 <a href="mailto:g-faky@hotmail.com" className="text-xl font-bold hover:text-purple-400">g-faky@hotmail.com</a>
               </div>
+              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 transition-all">
+                <Mail className="text-purple-500 group-hover:text-white" />
+              </div>
             </div>
 
-            <div className="flex items-center gap-6 group">
+            <div className="flex items-center gap-6 group justify-end">
+              <div className="text-right">
+                <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">رقم التواصل</p>
+                <a href="tel:+966501887013" className="text-xl font-bold hover:text-purple-400" dir="ltr">+966 50 188 7013</a>
+              </div>
               <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 transition-all">
                 <Phone className="text-purple-500 group-hover:text-white" />
-              </div>
-              <div>
-                <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">رقم التواصل</p>
-                <a href="tel:+966532470165" className="text-xl font-bold hover:text-purple-400" dir="ltr">+966 53 247 0165</a>
               </div>
             </div>
           </div>
