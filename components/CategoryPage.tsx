@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { ArrowRight, X, ZoomIn, ArrowRightCircle, PlayCircle } from 'lucide-react';
+import { ArrowRight, X, ZoomIn, ArrowRightCircle, PlayCircle, Layers } from 'lucide-react';
 import { Category, PortfolioItem } from '../types';
 import NotFound from './NotFound';
 
@@ -20,9 +20,23 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
     return categories.find(c => c.slug === slug || c.slug === categorySlug);
   }, [categories, slug, categorySlug]);
 
-  const categoryItems = useMemo(() => {
-    if (!info) return [];
-    return projects.filter(item => item.category_id === info.id);
+  // منطق تجميع الأعمال حسب الفئات الفرعية
+  const groupedItems = useMemo(() => {
+    if (!info) return {};
+    
+    const items = projects.filter(item => item.category_id === info.id);
+    const groups: Record<string, PortfolioItem[]> = {};
+
+    items.forEach(item => {
+      const description = item.description || "";
+      const parts = description.split('|||');
+      const subCat = parts.length > 1 && parts[0].trim() !== "" ? parts[0] : "أعمال أخرى";
+      
+      if (!groups[subCat]) groups[subCat] = [];
+      groups[subCat].push(item);
+    });
+
+    return groups;
   }, [projects, info]);
 
   useEffect(() => {
@@ -34,6 +48,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
   }, []);
 
   if (!info) return <NotFound onBack={onBack} />;
+
+  const subCategories = Object.keys(groupedItems);
 
   return (
     <div className="min-h-screen pt-32 pb-24 bg-white animate-fade-in">
@@ -47,29 +63,43 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
           <p className="text-slate-500 text-xl leading-relaxed max-w-3xl">{info.description}</p>
         </div>
 
-        {categoryItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categoryItems.map((item) => (
-              <div 
-                key={item.id} 
-                onClick={() => setSelectedProject(item)}
-                className="group cursor-pointer bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 hover:shadow-2xl transition-all duration-500"
-              >
-                <div className="aspect-[4/3] overflow-hidden relative bg-slate-100">
-                  {item.media_type === 'video' ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-white p-4">
-                      <PlayCircle className="w-16 h-16 text-purple-500 mb-4 group-hover:scale-110 transition-transform" />
-                      <span className="font-bold opacity-70">فيديو متاح</span>
-                    </div>
-                  ) : (
-                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
-                  )}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <ZoomIn className="text-white w-10 h-10" />
+        {subCategories.length > 0 ? (
+          <div className="space-y-24">
+            {subCategories.sort((a, b) => a === 'أعمال أخرى' ? 1 : b === 'أعمال أخرى' ? -1 : 0).map((subName) => (
+              <div key={subName} className="relative">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-100">
+                    <Layers size={24} />
                   </div>
+                  <h2 className="text-3xl font-black text-slate-800">{subName}</h2>
+                  <div className="flex-1 h-px bg-slate-100"></div>
                 </div>
-                <div className="p-8">
-                  <h3 className="text-xl font-black text-slate-900">{item.title}</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {groupedItems[subName].map((item) => (
+                    <div 
+                      key={item.id} 
+                      onClick={() => setSelectedProject(item)}
+                      className="group cursor-pointer bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 hover:shadow-2xl transition-all duration-500"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden relative bg-slate-100">
+                        {item.media_type === 'video' ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-white p-4 text-center">
+                            <PlayCircle className="w-16 h-16 text-purple-500 mb-4 group-hover:scale-110 transition-transform" />
+                            <span className="font-bold opacity-70">فيديو متاح</span>
+                          </div>
+                        ) : (
+                          <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
+                        )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <ZoomIn className="text-white w-10 h-10" />
+                        </div>
+                      </div>
+                      <div className="p-8">
+                        <h3 className="text-xl font-black text-slate-900">{item.title}</h3>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -98,18 +128,9 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
             <div className="max-w-5xl mx-auto">
               <div className="rounded-[3rem] overflow-hidden shadow-2xl mb-12 bg-black border relative group">
                 {selectedProject.media_type === 'video' ? (
-                  <video 
-                    src={selectedProject.image_url} 
-                    controls 
-                    className="w-full h-auto max-h-[85vh] mx-auto"
-                    autoPlay
-                  />
+                  <video src={selectedProject.image_url} controls className="w-full h-auto max-h-[85vh] mx-auto" autoPlay />
                 ) : (
-                  <img 
-                    src={selectedProject.image_url} 
-                    alt={selectedProject.title} 
-                    className="w-full h-auto max-h-[85vh] object-contain mx-auto"
-                  />
+                  <img src={selectedProject.image_url} alt={selectedProject.title} className="w-full h-auto max-h-[85vh] object-contain mx-auto" />
                 )}
               </div>
               
@@ -117,14 +138,14 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
                 <h3 className="text-3xl font-black text-slate-900 mb-6">نبذة عن العمل</h3>
                 <div className="w-16 h-1.5 bg-purple-600 rounded-full mb-8"></div>
                 <p className="text-slate-600 text-xl leading-relaxed whitespace-pre-line mb-16">
-                  {selectedProject.description || "لا يوجد وصف متاح لهذا العمل حالياً."}
+                  {/* استخراج الوصف الفعلي فقط دون الفئة الفرعية */}
+                  {(selectedProject.description || "").split('|||').length > 1 
+                    ? (selectedProject.description || "").split('|||')[1] 
+                    : (selectedProject.description || "لا يوجد وصف متاح لهذا العمل حالياً.")}
                 </p>
 
                 <div className="flex justify-center sm:justify-end pb-12">
-                  <button 
-                    onClick={() => setSelectedProject(null)}
-                    className="flex items-center gap-3 bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black text-xl hover:bg-purple-600 hover:shadow-2xl hover:shadow-purple-200 transition-all transform hover:-translate-y-1 active:scale-95"
-                  >
+                  <button onClick={() => setSelectedProject(null)} className="flex items-center gap-3 bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black text-xl hover:bg-purple-600 hover:shadow-2xl hover:shadow-purple-200 transition-all transform hover:-translate-y-1 active:scale-95">
                     إغلاق والعودة للمعرض
                     <ArrowRightCircle size={24} />
                   </button>
