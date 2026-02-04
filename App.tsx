@@ -10,6 +10,7 @@ import Login from './components/Dashboard/Login';
 import Dashboard from './components/Dashboard/Dashboard';
 import { supabase } from './lib/supabase';
 import { Category, PortfolioItem } from './types';
+import { Lock } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>('home');
@@ -42,7 +43,6 @@ const App: React.FC = () => {
 
     const handleNavigation = () => {
       const rawHash = window.location.hash || '#home';
-      // فك تشفير الروابط لضمان عمل الحروف العربية في الـ Slug
       const hash = decodeURIComponent(rawHash);
 
       if (hash === '#ghufran') setCurrentPage('login');
@@ -65,7 +65,6 @@ const App: React.FC = () => {
   }, []);
 
   const navigateTo = (path: string) => { 
-    // التأكد من تشفير الرابط عند الانتقال لتجنب مشاكل المتصفحات
     window.location.hash = encodeURIComponent(path).replace(/%2F/g, '/'); 
   };
 
@@ -108,9 +107,20 @@ const App: React.FC = () => {
           />
         )}
       </main>
-      <footer className="bg-slate-900 py-12 text-center text-slate-500 border-t border-white/5">
+      <footer className="bg-slate-900 py-12 text-center text-slate-500 border-t border-white/5 relative">
         <div className="container mx-auto px-6">
-          <span className="text-xs font-bold opacity-60">© 2026 جميع الحقوق محفوظة لـ غفران صالح</span>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <span className="text-xs font-bold opacity-60">© 2026 جميع الحقوق محفوظة لـ غفران صالح</span>
+            
+            {/* مدخل سري للوحة التحكم */}
+            <button 
+              onClick={() => navigateTo('ghufran')}
+              className="opacity-10 hover:opacity-100 transition-opacity p-2 text-white"
+              title="إدارة الموقع"
+            >
+              <Lock size={14} />
+            </button>
+          </div>
         </div>
       </footer>
     </div>
