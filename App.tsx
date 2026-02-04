@@ -9,24 +9,21 @@ import CategoryPage from './components/CategoryPage';
 import Login from './components/Dashboard/Login';
 import Dashboard from './components/Dashboard/Dashboard';
 import { supabase } from './lib/supabase';
-import { Category, PortfolioItem, SubCategory } from './types';
+import { Category, PortfolioItem } from './types';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [session, setSession] = useState<any>(null);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
   const [projects, setProjects] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     try {
       const { data: cats } = await supabase.from('categories').select('*').order('name');
-      const { data: subs } = await supabase.from('sub_categories').select('*, categories(*)').order('name');
       const { data: projs } = await supabase.from('portfolio_items').select('*, categories(*)').order('created_at', { ascending: false });
       
       setCategories(cats || []);
-      setSubCategories(subs || []);
       setProjects(projs?.map(p => ({
         ...p,
         category: p.categories
@@ -44,13 +41,19 @@ const App: React.FC = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
 
     const handleNavigation = () => {
-      const hash = window.location.hash || '#home';
+      const rawHash = window.location.hash || '#home';
+      // فك تشفير الروابط لضمان عمل الحروف العربية في الـ Slug
+      const hash = decodeURIComponent(rawHash);
+
       if (hash === '#ghufran') setCurrentPage('login');
       else if (hash === '#dashboard') setCurrentPage('dashboard');
       else if (hash.startsWith('#category/')) {
-        setCurrentPage(hash.replace('#category/', ''));
+        const slug = hash.replace('#category/', '');
+        setCurrentPage(slug);
         window.scrollTo(0, 0);
-      } else setCurrentPage('home');
+      } else {
+        setCurrentPage('home');
+      }
     };
 
     window.addEventListener('hashchange', handleNavigation);
@@ -61,14 +64,17 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const navigateTo = (path: string) => { window.location.hash = path; };
+  const navigateTo = (path: string) => { 
+    // التأكد من تشفير الرابط عند الانتقال لتجنب مشاكل المتصفحات
+    window.location.hash = encodeURIComponent(path).replace(/%2F/g, '/'); 
+  };
 
   if (isLoading && currentPage !== 'login' && currentPage !== 'dashboard') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="font-bold text-slate-400">جاري تحميل الإبداع...</p>
+          <p className="font-bold text-slate-400">جاري التحميل...</p>
         </div>
       </div>
     );
@@ -82,7 +88,11 @@ const App: React.FC = () => {
           <>
             <Hero />
             <Services />
-            <Portfolio categories={categories} onNavigate={(cat) => navigateTo(`category/${cat}`)} />
+            <Portfolio 
+              categories={categories} 
+              projects={projects}
+              onNavigate={(cat) => navigateTo(`category/${cat}`)} 
+            />
             <Contact />
           </>
         ) : currentPage === 'login' ? (
@@ -93,7 +103,6 @@ const App: React.FC = () => {
           <CategoryPage 
             categorySlug={currentPage} 
             categories={categories}
-            subCategories={subCategories}
             projects={projects}
             onBack={() => navigateTo('home')} 
           />
