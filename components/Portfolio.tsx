@@ -12,10 +12,7 @@ interface PortfolioProps {
 const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate }) => {
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
 
-  // عرض أحدث 12 عملاً لضمان ظهور كافة الأقسام بما فيها الجرافيك بشكل متنوع
-  const latestProjects = projects
-    .filter(p => p.title !== 'شعار شركة هدايا') // استبعاد يدوي لأعمال معينة إذا لزم الأمر
-    .slice(0, 12);
+  const latestProjects = projects.slice(0, 12);
 
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
@@ -98,7 +95,6 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
         </div>
       </div>
 
-      {/* نافذة العرض المكبرة (Modal) */}
       {selectedProject && (
         <div className="fixed inset-0 z-[100] bg-white animate-fade-in overflow-y-auto">
           <div className="sticky top-0 p-6 flex justify-between items-center bg-white/90 backdrop-blur-md z-[110] border-b shadow-sm">
@@ -116,18 +112,9 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
             <div className="max-w-5xl mx-auto">
               <div className="rounded-[3rem] overflow-hidden shadow-2xl mb-12 bg-black border relative group">
                 {selectedProject.media_type === 'video' ? (
-                  <video 
-                    src={selectedProject.image_url} 
-                    controls 
-                    className="w-full h-auto max-h-[85vh] mx-auto"
-                    autoPlay
-                  />
+                  <video src={selectedProject.image_url} controls className="w-full h-auto max-h-[85vh] mx-auto" autoPlay />
                 ) : (
-                  <img 
-                    src={selectedProject.image_url} 
-                    alt={selectedProject.title} 
-                    className="w-full h-auto max-h-[85vh] object-contain mx-auto"
-                  />
+                  <img src={selectedProject.image_url} alt={selectedProject.title} className="w-full h-auto max-h-[85vh] object-contain mx-auto" />
                 )}
               </div>
               
@@ -135,7 +122,10 @@ const Portfolio: React.FC<PortfolioProps> = ({ categories, projects, onNavigate 
                 <h3 className="text-3xl font-black text-slate-900 mb-6">نبذة عن العمل</h3>
                 <div className="w-16 h-1.5 bg-purple-600 rounded-full mb-8"></div>
                 <p className="text-slate-600 text-xl leading-relaxed whitespace-pre-line mb-16">
-                  {selectedProject.description || "لا يوجد وصف متاح لهذا العمل حالياً."}
+                  {/* فصل الفئة الفرعية عن الوصف الفعلي */}
+                  {(selectedProject.description || "").split('|||').length > 1 
+                    ? (selectedProject.description || "").split('|||')[1] 
+                    : (selectedProject.description || "لا يوجد وصف متاح لهذا العمل حالياً.")}
                 </p>
 
                 <div className="flex justify-center sm:justify-end pb-12">
