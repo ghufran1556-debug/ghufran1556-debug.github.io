@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Palette, Camera, Video, Presentation, Globe, Table, Share2 } from 'lucide-react';
+import { Palette, Camera, Video, Presentation, Globe, Table, Share2, Utensils, Package } from 'lucide-react';
 import { ServiceItem, PortfolioItem } from './types';
 
 export const DESIGN_SERVICES: ServiceItem[] = [
@@ -10,18 +10,23 @@ export const DESIGN_SERVICES: ServiceItem[] = [
     icon: 'Palette'
   },
   {
-    title: "Photography\nالتصوير الفوتوغرافي",
-    description: 'تصوير منتجات، أطعمة بجودة عالية',
-    icon: 'Camera'
+    title: "Product Photography\nتصوير المنتجات",
+    description: 'إبراز تفاصيل منتجاتك بلقطات احترافية تزيد من جاذبيتها البيعية.',
+    icon: 'Package'
   },
   {
-    title: "Video Production\nتصوير وإنتاج فيديوهات",
-    description: 'إنتاج فيديوهات قصيرة وإعلانية مع مونتاج احترافي.',
+    title: "Food Photography\nتصوير الأطعمة",
+    description: 'تصوير الوجبات والأطباق بأسلوب يثير الشهية ويناسب المطاعم.',
+    icon: 'Utensils'
+  },
+  {
+    title: "Video Production\nإنتاج الفيديوهات",
+    description: 'إنتاج فيديوهات قصيرة وإعلانية مع مونتاج سينمائي احترافي.',
     icon: 'Video'
   },
   {
-    title: "Professional Presentations\nعروض تقديمية احترافية",
-    description: 'تصميم عروض PowerPoint بشكل جذاب وواضح.',
+    title: "Professional Presentations\nعروض احترافية",
+    description: 'تصميم عروض PowerPoint و Keynote جذابة وواضحة.',
     icon: 'Presentation'
   }
 ];
@@ -33,12 +38,12 @@ export const TECH_SERVICES: ServiceItem[] = [
     icon: 'Globe'
   },
   {
-    title: "Excel Sheets & Dashboards\nتصميم جداول إكسل وداشبورد",
+    title: "Excel Sheets & Dashboards\nجداول إكسل وداشبورد",
     description: 'بناء جداول ولوحات تحكم تساعد على التحليل واتخاذ القرار.',
     icon: 'Table'
   },
   {
-    title: "Social Media Management\nإدارة حسابات السوشال ميديا",
+    title: "Social Media Management\nإدارة حسابات",
     description: 'تنسيق المحتوى، تصميم المنشورات، وجدولة النشر وتحليل الأداء.',
     icon: 'Share2'
   }
@@ -48,6 +53,8 @@ export const getIcon = (iconName: string) => {
   switch (iconName) {
     case 'Palette': return <Palette className="w-8 h-8 text-purple-600" />;
     case 'Camera': return <Camera className="w-8 h-8 text-purple-600" />;
+    case 'Package': return <Package className="w-8 h-8 text-purple-600" />;
+    case 'Utensils': return <Utensils className="w-8 h-8 text-purple-600" />;
     case 'Video': return <Video className="w-8 h-8 text-purple-600" />;
     case 'Presentation': return <Presentation className="w-8 h-8 text-purple-600" />;
     case 'Globe': return <Globe className="w-8 h-8 text-purple-600" />;
