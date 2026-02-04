@@ -14,13 +14,24 @@ export interface Category {
   created_at?: string;
 }
 
+export interface SubCategory {
+  id: string;
+  category_id: string;
+  name: string;
+  slug: string;
+  created_at?: string;
+  category?: Category;
+}
+
 export interface PortfolioItem {
   id: string;
   category_id: string;
-  sub_category: string;
+  sub_category_id?: string;
+  sub_category?: string; // Legacy field
   title: string;
   image_url: string;
   description?: string;
   created_at?: string;
-  category?: Category; // Joined category
+  category?: Category;
+  sub_category_obj?: SubCategory;
 }
