@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Lock, FileText, Download } from 'lucide-react';
+import { Menu, X, Download, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface NavbarProps {
@@ -48,7 +48,6 @@ const Navbar: React.FC<NavbarProps> = ({ onNavClick, isHome, isLoggedIn }) => {
 
   const handleDownloadCV = () => {
     if (cvUrl) {
-      // فتح الملف في نافذة جديدة، المتصفح سيتعامل معه كتحميل أو معاينة بناءً على إعداده
       const link = document.createElement('a');
       link.href = cvUrl;
       link.target = '_blank';
@@ -93,15 +92,6 @@ const Navbar: React.FC<NavbarProps> = ({ onNavClick, isHome, isLoggedIn }) => {
             السيرة الذاتية
             <Download size={16} />
           </button>
-          
-          <a
-            href={isLoggedIn ? "#dashboard" : "#ghufran"}
-            onClick={(e) => handleLinkClick(e, isLoggedIn ? "#dashboard" : "#ghufran")}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 text-purple-700 font-bold hover:bg-purple-600 hover:text-white transition-all border border-purple-100"
-            title="إدارة المحتوى"
-          >
-            <Lock size={14} />
-          </a>
         </div>
 
         {/* Mobile Toggle */}
@@ -111,7 +101,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavClick, isHome, isLoggedIn }) => {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden absolute top-full left-0 right-0 bg-white shadow-2xl transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-[600px] border-t opacity-100' : 'max-h-0 opacity-0'}`}>
+      <div className={`md:hidden absolute top-full left-0 right-0 bg-white shadow-2xl transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-[500px] border-t opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="py-6 px-6 flex flex-col gap-4">
           {navLinks.map((link) => (
             <a
@@ -132,15 +122,6 @@ const Navbar: React.FC<NavbarProps> = ({ onNavClick, isHome, isLoggedIn }) => {
             <FileText size={20} />
             تحميل السيرة الذاتية
           </button>
-
-          <a
-            href={isLoggedIn ? "#dashboard" : "#ghufran"}
-            onClick={(e) => handleLinkClick(e, isLoggedIn ? "#dashboard" : "#ghufran")}
-            className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-slate-100 text-slate-600 font-bold"
-          >
-            <Lock size={18} />
-            لوحة التحكم
-          </a>
         </div>
       </div>
     </nav>
