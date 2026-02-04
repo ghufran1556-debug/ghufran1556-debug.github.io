@@ -28,23 +28,23 @@ const Contact: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="flex items-center gap-6 group justify-end">
+            <div className="flex items-center gap-6 group justify-start">
+              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 transition-all">
+                <Mail className="text-purple-500 group-hover:text-white" />
+              </div>
               <div className="text-right">
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">البريد الإلكتروني</p>
                 <a href="mailto:g-faky@hotmail.com" className="text-xl font-bold hover:text-purple-400">g-faky@hotmail.com</a>
               </div>
-              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 transition-all">
-                <Mail className="text-purple-500 group-hover:text-white" />
-              </div>
             </div>
 
-            <div className="flex items-center gap-6 group justify-end">
+            <div className="flex items-center gap-6 group justify-start">
+              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 transition-all">
+                <Phone className="text-purple-500 group-hover:text-white" />
+              </div>
               <div className="text-right">
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">رقم التواصل</p>
                 <a href="tel:+966501887013" className="text-xl font-bold hover:text-purple-400" dir="ltr">+966 50 188 7013</a>
-              </div>
-              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 transition-all">
-                <Phone className="text-purple-500 group-hover:text-white" />
               </div>
             </div>
           </div>
