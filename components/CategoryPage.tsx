@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { ArrowRight, X, ZoomIn, ArrowRightCircle } from 'lucide-react';
+import { ArrowRight, X, ZoomIn, ArrowRightCircle, PlayCircle } from 'lucide-react';
 import { Category, PortfolioItem } from '../types';
 import NotFound from './NotFound';
 
@@ -14,7 +14,6 @@ interface CategoryPageProps {
 const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, projects, onBack }) => {
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
   
-  // فك التشفير هنا أيضاً للتأكد من مطابقة النص العربي
   const slug = useMemo(() => decodeURIComponent(categorySlug), [categorySlug]);
   
   const info = useMemo(() => {
@@ -26,7 +25,6 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
     return projects.filter(item => item.category_id === info.id);
   }, [projects, info]);
 
-  // إغلاق النافذة عند الضغط على زر Escape
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setSelectedProject(null);
@@ -57,8 +55,15 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
                 onClick={() => setSelectedProject(item)}
                 className="group cursor-pointer bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 hover:shadow-2xl transition-all duration-500"
               >
-                <div className="aspect-[4/3] overflow-hidden relative">
-                  <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
+                <div className="aspect-[4/3] overflow-hidden relative bg-slate-100">
+                  {item.media_type === 'video' ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-white p-4">
+                      <PlayCircle className="w-16 h-16 text-purple-500 mb-4 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold opacity-70">فيديو متاح</span>
+                    </div>
+                  ) : (
+                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
+                  )}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <ZoomIn className="text-white w-10 h-10" />
                   </div>
@@ -76,10 +81,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
         )}
       </div>
 
-      {/* الصفحة المؤقتة (عرض العمل المكبر) */}
       {selectedProject && (
         <div className="fixed inset-0 z-[100] bg-white animate-fade-in overflow-y-auto">
-          {/* شريط علوي ثابت للإغلاق */}
           <div className="sticky top-0 p-6 flex justify-between items-center bg-white/90 backdrop-blur-md z-[110] border-b shadow-sm">
             <button 
               onClick={() => setSelectedProject(null)}
@@ -93,12 +96,21 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
 
           <div className="container mx-auto px-6 py-12 text-right">
             <div className="max-w-5xl mx-auto">
-              <div className="rounded-[3rem] overflow-hidden shadow-2xl mb-12 bg-slate-50 border relative group">
-                <img 
-                  src={selectedProject.image_url} 
-                  alt={selectedProject.title} 
-                  className="w-full h-auto max-h-[85vh] object-contain mx-auto"
-                />
+              <div className="rounded-[3rem] overflow-hidden shadow-2xl mb-12 bg-black border relative group">
+                {selectedProject.media_type === 'video' ? (
+                  <video 
+                    src={selectedProject.image_url} 
+                    controls 
+                    className="w-full h-auto max-h-[85vh] mx-auto"
+                    autoPlay
+                  />
+                ) : (
+                  <img 
+                    src={selectedProject.image_url} 
+                    alt={selectedProject.title} 
+                    className="w-full h-auto max-h-[85vh] object-contain mx-auto"
+                  />
+                )}
               </div>
               
               <div className="max-w-3xl ml-auto">
@@ -108,7 +120,6 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, categories, p
                   {selectedProject.description || "لا يوجد وصف متاح لهذا العمل حالياً."}
                 </p>
 
-                {/* زر إغلاق كبير في الأسفل لسهولة الوصول */}
                 <div className="flex justify-center sm:justify-end pb-12">
                   <button 
                     onClick={() => setSelectedProject(null)}
